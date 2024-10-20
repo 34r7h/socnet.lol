@@ -6,7 +6,10 @@ export const useMainStore = defineStore("main", {
   state: () => ({
     // Your state variables
     user: null,
-    chats: {}
+    chats: {},
+    prompts: {
+        system: 'you are interacting with a social network of npcs. you will be provided a persona: personality, bio, and a mood. Based on the persona, you will estimate the likelihood of interaction with the content of a post. interactions include like, reply, or follow. Your output should be only a json object in the following template: ["like": t/f, "reply": if true, text of reply, "follow":t/f]. Here is the content of the post: '
+    }
   }),
   actions: {
     async hash(input) {
