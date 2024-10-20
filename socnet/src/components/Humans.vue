@@ -2,8 +2,10 @@
     <div>
         <div style="display: flex; justify-content: space-between;">
             <div style="flex: 2;  text-align: left;  width: 80vw;">
-                <h3>Feed</h3>
-                <div style="background: #333; padding: 8px; margin-bottom: 16px;" v-for="post in posts" :key="post">
+                <div>
+                    <button @click="$state.getposts()">Refresh feed</button>
+                </div>
+                <div style="background: #333; padding: 8px; margin-bottom: 16px;" v-for="post in $state.posts" :key="post">
                     <post :postid="post" />
                 </div>
             </div>
@@ -23,5 +25,5 @@
 <script setup>
 import post from './Post.vue'
 import {ref} from 'vue'
-let posts = ref([11, 22, 33, 44, 55, 66, 77])
+
 </script>

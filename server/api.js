@@ -23,6 +23,42 @@ const hash = (data, iter) => {
     .update(typeof data !== "string" ? JSON.stringify(data) : data)
     .digest("hex");
 };
+const chat = async (prompt, model)=> {
+  // Validate that the message exists
+  if (!prompt) {
+    return res.status(400).json({ error: "Message is required" });
+  }
+  // Validate that the message exists
+  if (!model) {
+    return res.status(400).json({ error: "Model is required" });
+  }
+
+  try {
+    // Send the message to Ollama running locally
+    const ollamaResponse = await axios.post(
+      "http://localhost:11434/api/generate",
+      {
+        prompt,
+        model,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return ollamaResponse
+  }
+  catch (error) {
+    return console.error("Error with chat:", error);
+  }
+
+}
+
+const prompts = {
+  consume: 'you are interacting with a social network of npcs. you will be provided a persona: [personality, bio, ,mood]. Based on the persona traits, you will estimate the likelihood of interaction with the content of a post. interactions include like, reply, or follow. Your output should be only a json object in the following template: ["like": t/f, "reply": if true, text of reply, "follow":t/f]. Here comes the persona, followed with content of the post.. ',
+  post: 'DO NOT USE THE NAME. Write a 1st person perspective twitter-like post (~120-240 characters) about a specific topic (could be very far from canon) that the following persona could make: '
+}
 
 router.post("/signup", (req, res) => {
   console.log("Creating an account", req.body);
@@ -57,7 +93,7 @@ router.post("/signup", (req, res) => {
       });
     }
 
-    json[authhash] = emailhash;
+    json[authhash] = {emailhash};
 
     // Write back to the file
     fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
@@ -91,8 +127,32 @@ router.post("/follow", (req, res) => {
 });
 
 router.post("/post", (req, res) => {
+  const filePath = path.join(__dirname, "db.json");
+  const data = fs.readFileSync(filePath, "utf-8")
+    const json = JSON.parse(data);
+  try {
+    // Read the existing file
+    
+
+    console.log(json.bots)
+    Object.entries(json.bots).map(async x=>{
+      console.log({x});
+      
+      const botchat = chat(prompts.post + '' + JSON.stringify(x[1]), 'dolphin-llama3')
+      let response = await botchat
+      console.log(response.data);
+      const chats = response.data.split('\n').slice(0,-1).map(x=>(console.log(x), JSON.parse(x).response || '')).join('')
+      console.log({name: x[1].name, chats});
+      json.posts[hash(chats)] = {op: x[0], name: x[1].name, post: chats}
+      fs.writeFileSync(filePath, JSON.stringify(json, null, 2));      
+    })
+    // Write back to the file
+    console.log("Post created successfully");
+  } catch (error) {
+    console.error("Error creating post:", error);
+  }
   const { post, bot } = req.body;
-  res.json({ message: "Post successful", post: { post, bot } });
+  res.json({ message: "Post successful", posts: JSON.stringify(json.posts) });
 });
 
 router.post("/addfunds", (req, res) => {
@@ -199,41 +259,15 @@ router.post("/chat", async (req, res) => {
   const { prompt, model } = req.body;
   console.log({ prompt, model });
 
-  // Validate that the message exists
-  if (!prompt) {
-    return res.status(400).json({ error: "Message is required" });
-  }
-  // Validate that the message exists
-  if (!model) {
-    return res.status(400).json({ error: "Model is required" });
-  }
-
-  try {
-    // Send the message to Ollama running locally
-    const ollamaResponse = await axios.post(
-      "http://localhost:11434/api/generate",
-      {
-        prompt,
-        model,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("sent chat", await ollamaResponse.data);
+    const ollamaResponse = await chat(prompt, model)
+    console.log("sent chat", ollamaResponse.data);
 
     // Send Ollama's response back to the client
     return res.json({
       message: "Chat response received",
       response: await ollamaResponse.data,
     });
-  } catch (error) {
-    console.error("Error communicating with Ollama:", error);
-    return res.status(500).json({ error: "Failed to communicate with Ollama" });
-  }
+  
 });
 
 module.exports = router;

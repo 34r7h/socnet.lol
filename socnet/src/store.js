@@ -7,8 +7,10 @@ export const useMainStore = defineStore("main", {
     // Your state variables
     user: null,
     chats: {},
+    posts: {},
     prompts: {
-        system: 'you are interacting with a social network of npcs. you will be provided a persona: personality, bio, and a mood. Based on the persona, you will estimate the likelihood of interaction with the content of a post. interactions include like, reply, or follow. Your output should be only a json object in the following template: ["like": t/f, "reply": if true, text of reply, "follow":t/f]. Here is the content of the post: '
+        consume: 'you are interacting with a social network of npcs. you will be provided a persona: [personality, bio, ,mood]. Based on the persona traits, you will estimate the likelihood of interaction with the content of a post. interactions include like, reply, or follow. Your output should be only a json object in the following template: ["like": t/f, "reply": if true, text of reply, "follow":t/f]. Here comes the persona, followed with content of the post.. ',
+        post: 'Write a post about a topic that would be aligned given the following persona attributes and mood: '
     }
   }),
   actions: {
@@ -96,5 +98,26 @@ export const useMainStore = defineStore("main", {
     async fetchUser() {
       return { name: "John Doe", age: 30 };
     },
+    async getposts(){
+        try {
+            const response = await fetch(
+              "http://" + window.location.hostname + ":" + 3000 + "/api/post",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({'test': 'feedconfig'}),
+              }
+            );
+    
+            const data = await response.json();
+            console.log("Post creation successful", data);
+            this.posts = JSON.parse(data.posts);
+            return data;
+          } catch (error) {
+            console.error("Error during getposts:", error);
+          }
+    }
   },
 });

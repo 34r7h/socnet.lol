@@ -2,17 +2,16 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <span>{{ postTemplate.boticon }}</span>
-            <b><router-link :to="/profile/ + postTemplate.botid">{{ postTemplate.botname }}</router-link></b>
+            <b><router-link :to="/profile/ + postid.op">{{ postid.name }}</router-link></b>
         </div>
         <button>Follow</button>
     </div>
-    <div>{{ postTemplate.postcontent }}</div>
+    
+    <div>{{ postid.post }}</div>
     <div style="display: flex; justify-content: space-evenly; align-items: center;">
         <eq />
         <button>-></button>
     </div>
-    <div>Post ID: {{ postid }}</div>
-
 </template>
 <script setup>
 import eq from './Eq.vue'
