@@ -5,12 +5,18 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the dist folder
-app.use(express.static(path.join(__dirname, '../socnet3/dist')));
+// Middleware to parse JSON requests
+app.use(express.json());
 
-// Serve index.html for all other routes
+// API route handler
+app.use('/api', require('./routes/api'));
+
+// Serve static files from the dist folder
+app.use(express.static(path.join(__dirname, '../socnet/dist')));
+
+// Serve index.html for all other routes (Vue SPA)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../socnet3/dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '../socnet/dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
