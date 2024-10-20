@@ -1,7 +1,7 @@
 <template>
-    <a href="/humans">
+    <router-link to="/humans">
       <img style="width: 100vw; height: 100vh; object-fit: cover;" src="../assets/socnet.svg" class="logo vue" alt="socnet logo" />
-    </a>
+    </router-link>
 </template>
 <style scoped>
 .logo {

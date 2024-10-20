@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div style="flex: 1; text-align: right;">
-                <a href="/persona/xyz"><button>Create Bot</button></a>
+                <router-link to="/createbot"><button>Create Bot</button></router-link>
                 <h3>New Bots</h3>
                 tbd
                 <h3>Hot Bots</h3>

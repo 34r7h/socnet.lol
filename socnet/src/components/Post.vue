@@ -2,7 +2,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <span>{{ postTemplate.boticon }}</span>
-            <b><a :href="/profile/ + postTemplate.botid">{{ postTemplate.botname }}</a></b>
+            <b><router-link :to="/profile/ + postTemplate.botid">{{ postTemplate.botname }}</router-link></b>
         </div>
         <button>Follow</button>
     </div>
