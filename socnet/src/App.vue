@@ -17,7 +17,7 @@
             <router-link to="/account">Account</router-link>
         </div>
   <router-view />
-
+        <!-- {{ $state }} -->
 </template>
 
 

@@ -1,50 +1,63 @@
 // routes/api.js
 const express = require("express");
 const router = express.Router();
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
+const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+const axios = require("axios");
 
-
-
-const hash = (data, iter)=>{
-  let count = iter || 1
+const hash = (data, iter) => {
+  let count = iter || 1;
   if (count > 1) {
-    count = count - 1
-    return hash(crypto.createHash('sha256').update(typeof data !== 'string' ? JSON.stringify(data) : data).digest('hex'), count)
-  } 
-  return crypto.createHash('sha256').update(typeof data !== 'string' ? JSON.stringify(data) : data).digest('hex');
-}
+    count = count - 1;
+    return hash(
+      crypto
+        .createHash("sha256")
+        .update(typeof data !== "string" ? JSON.stringify(data) : data)
+        .digest("hex"),
+      count
+    );
+  }
+  return crypto
+    .createHash("sha256")
+    .update(typeof data !== "string" ? JSON.stringify(data) : data)
+    .digest("hex");
+};
 
 router.post("/signup", (req, res) => {
-  console.log('Creating an account', req.body);
-  
+  console.log("Creating an account", req.body);
+
   const { email, password } = req.body;
-  console.log({email, password});
-  
-  const [authhash, emailhash, passwordhash] = [hash({ email, password }, 2), hash(email), hash(password, 1)]
+  console.log({ email, password });
+
+  const [authhash, emailhash, passwordhash] = [
+    hash({ email, password }, 2),
+    hash(email),
+    hash(password, 1),
+  ];
 
   // authhash double hashes a provided password hash and email, verifiable from client
 
-  console.log({authhash});
-  const filePath = path.join(__dirname, 'auth.json');
+  console.log({ authhash });
+  const filePath = path.join(__dirname, "auth.json");
 
   try {
     // Read the existing file
-    const data = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf-8') : '{}';
+    const data = fs.existsSync(filePath)
+      ? fs.readFileSync(filePath, "utf-8")
+      : "{}";
     const json = JSON.parse(data);
 
     // Append the new key safely
-    if(json[authhash] && json[authhash] == emailhash) {
-      console.log('authenticated', authhash);
+    if (json[authhash] && json[authhash] == emailhash) {
+      console.log("authenticated", authhash);
       return res.json({
-        message: 'authenticated',
-        user: authhash
-      })
+        message: "authenticated",
+        user: authhash,
+      });
     }
 
-    json[authhash] = emailhash
+    json[authhash] = emailhash;
 
     // Write back to the file
     fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
@@ -52,7 +65,7 @@ router.post("/signup", (req, res) => {
   } catch (error) {
     console.error("Error appending key to auth.json:", error);
   }
-  
+
   return res.json({
     message: "signed up",
     user: { email, authhash },
@@ -97,17 +110,41 @@ router.post("/payout", (req, res) => {
   res.json({ message: "Payout made", payment: { postid, type, tx } });
 });
 
-router.post("/create", (req, res) => {
-  const { name, bio, personality, feedconfig, tx } = req.body;
+router.post("/createbot", (req, res) => {
+  console.log(req.body);
+  
+  const { name, bio, personality, feed, budget, creator } = req.body;
+  const filePath = path.join(__dirname, "db.json");
+  const datahash = hash({ name, bio, personality, feed, budget, creator })
+
+  try {
+    // Read the existing file
+    const data = fs.existsSync(filePath)
+      ? fs.readFileSync(filePath, "utf-8")
+      : "{'bots': {}}";
+    const json = JSON.parse(data);
+
+    json.bots[datahash] = { name, bio, personality, feed, budget, creator }
+
+    // Write back to the file
+    fs.writeFileSync(filePath, JSON.stringify(json, null, 2));
+    console.log("Bot created successfully");
+  } catch (error) {
+    console.error("Error creating bot:", error);
+  }
+
   res.json({
-    message: "Bot created",
-    bot: { name, bio, personality, feedconfig, tx },
+    datahash,
+    bot: { name, bio, personality, feed, budget, creator },
   });
 });
 
 router.post("/respond", (req, res) => {
   const { bot, type, mood, content } = req.body;
-  res.json({ message: "Response created", response: { bot, type, mood, content } });
+  res.json({
+    message: "Response created",
+    response: { bot, type, mood, content },
+  });
 });
 
 router.post("/costs", (req, res) => {
@@ -138,7 +175,7 @@ router.post("/share", (req, res) => {
   const { post, bot } = req.body;
   res.json({
     message: "Content shared",
-    share:{ post, bot },
+    share: { post, bot },
   });
 });
 
@@ -146,7 +183,7 @@ router.post("/sponsor", (req, res) => {
   const { ad, tx } = req.body;
   res.json({
     message: "Ad money snagged",
-    sponsor:{  ad, tx },
+    sponsor: { ad, tx },
   });
 });
 
@@ -154,45 +191,49 @@ router.post("/metrics", (req, res) => {
   const { type, data } = req.body;
   res.json({
     message: "Metrics derived",
-    stats:{  type, data },
+    stats: { type, data },
   });
 });
 
-router.post('/chat', async (req, res) => {
+router.post("/chat", async (req, res) => {
   const { prompt, model } = req.body;
-console.log({prompt, model});
+  console.log({ prompt, model });
 
   // Validate that the message exists
   if (!prompt) {
-    return res.status(400).json({ error: 'Message is required' });
+    return res.status(400).json({ error: "Message is required" });
   }
-    // Validate that the message exists
-    if (!model) {
-      return res.status(400).json({ error: 'Model is required' });
-    }
+  // Validate that the message exists
+  if (!model) {
+    return res.status(400).json({ error: "Model is required" });
+  }
 
-    try {
-      // Send the message to Ollama running locally
-      const ollamaResponse = await axios.post('http://localhost:11434/api/generate', {
+  try {
+    // Send the message to Ollama running locally
+    const ollamaResponse = await axios.post(
+      "http://localhost:11434/api/generate",
+      {
         prompt,
-        model
-      }, {
+        model,
+      },
+      {
         headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-  
-      console.log('sent chat', await ollamaResponse.data);
-  
-      // Send Ollama's response back to the client
-      return res.json({
-        message: 'Chat response received',
-        response: await ollamaResponse.data
-      });
-    } catch (error) {
-      console.error('Error communicating with Ollama:', error);
-      return res.status(500).json({ error: 'Failed to communicate with Ollama' });
-    }
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("sent chat", await ollamaResponse.data);
+
+    // Send Ollama's response back to the client
+    return res.json({
+      message: "Chat response received",
+      response: await ollamaResponse.data,
+    });
+  } catch (error) {
+    console.error("Error communicating with Ollama:", error);
+    return res.status(500).json({ error: "Failed to communicate with Ollama" });
+  }
 });
 
 module.exports = router;

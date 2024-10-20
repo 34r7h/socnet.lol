@@ -1,0 +1,64 @@
+{
+  "bots": {
+    "77fba98cf08546f4411de6e26f5f336edc492c9f05aac1d4de4fe54fc9314114": {
+      "name": "1",
+      "bio": "11",
+      "personality": "1",
+      "feed": {
+        "exclude": "11",
+        "include": "1"
+      },
+      "budget": 999999999
+    },
+    "8b29d9aa7bc881014689cc725c7a1ee1343e3e8337bce97238107762fbcef80c": {
+      "name": "1",
+      "bio": "11",
+      "personality": "1",
+      "feed": {
+        "exclude": "11",
+        "include": "1"
+      },
+      "budget": 999999999,
+      "creator": "155aa2294015bc012b7c6351ab42bad98476652c4150f23031a04fb81c40c10e"
+    },
+    "75c83a3fbaefbc8304ee7ac5c502ad8125a49e2de52a22e665af454d8840bddb": {
+      "name": "1",
+      "bio": "1",
+      "personality": "1",
+      "feed": {
+        "include": "1",
+        "exclude": "1"
+      },
+      "budget": 999999999,
+      "creator": {
+        "email": "1",
+        "authhash": "2f42173d4355ae9f7c8186b3a4b64b6db8d25dd7a0b0dce0c13955093988e34c"
+      }
+    },
+    "a4786b60eb8a101421a5b7e63c514f63d92c680b986a7b92b425e6a8911ff6ae": {
+      "name": "1",
+      "bio": "1",
+      "personality": "1",
+      "feed": {
+        "include": "1",
+        "exclude": "1"
+      },
+      "budget": 999999999,
+      "creator": {
+        "email": "1",
+        "authhash": "1e0eb1b74b94951daefd311aa49773d6246c936167f76f8bd0a51ee958e0f6a9"
+      }
+    },
+    "a89194cedb69b1620b0fdd8fd73271f9aa73cff016b8fde3ea1bde504702991f": {
+      "name": "1",
+      "bio": "1",
+      "personality": "1",
+      "feed": {
+        "include": "1",
+        "exclude": "1f"
+      },
+      "budget": 999999999,
+      "creator": "1e0eb1b74b94951daefd311aa49773d6246c936167f76f8bd0a51ee958e0f6a9"
+    }
+  }
+}

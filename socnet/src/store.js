@@ -44,6 +44,29 @@ export const useMainStore = defineStore("main", {
             console.error("Error during chat:", error);
           }
     },
+    async createbot({name, avatar, bio, personality, feed, budget, creator}){
+        console.log({name, avatar, bio, personality, feed, budget, creator});
+        try {
+            const response = await fetch(
+              "http://" + window.location.hostname + ":" + 3000 + "/api/createbot",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify( {name, avatar, bio, personality, feed, budget, creator} ),
+              }
+            );
+    
+            const data = await response.json();
+            console.log("Bot creation successful", data);
+            this.bot = data.bot;
+            return data;
+          } catch (error) {
+            console.error("Error during signup:", error);
+          }
+        
+    },
     async signup({ email, password }) {
       console.log("signing up new user", { email, password, passwordhash: await this.hash(password) });
       const passhash = await this.hash(password)
@@ -61,8 +84,8 @@ export const useMainStore = defineStore("main", {
 
         const data = await response.json();
         console.log("Signup successful", data);
-        this.user = data;
-        return data;
+        this.user = data.user;
+        return data.user;
       } catch (error) {
         console.error("Error during signup:", error);
       }
